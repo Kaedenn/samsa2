@@ -94,6 +94,11 @@ do
     out_path=`echo $f | awk -F "_R1" '{print $1 ".merged"}'`
 
     checked $PEAR -f $f -r $f2 -o $STEP_1/${out_path##*/}
+    status=$?
+    echo "Received PEAR status $status"
+    if [[ $status -ne 0 ]]; then
+      logfail pear "$f" "$f2" "$STEP_1/${out_path##*/}"
+    fi
 done
 
 ####################################################################
@@ -106,6 +111,9 @@ for file in $STEP_1/*.merged*
 do
     shortname=`echo $file | awk -F "merged" '{print $1 "cleaned.fastq"}'`
     checked java -jar $TRIMMOMATIC SE -phred33 $file $shortname SLIDINGWINDOW:4:15 MINLEN:99
+    if [[ $? -ne 0 ]]; then
+      logfail trimmomatic "$file" "$shortname"
+    fi
 done
 
 $MKDIR $STEP_2

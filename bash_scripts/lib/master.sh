@@ -27,6 +27,7 @@ DIA_SUBSYS_PATH="${DIA_SUBSYS}.fa"
 
 # do_pear <input-path> <output-path>
 do_pear() {
+  # <f>_{R1,R2}_<g>.fastq -> <f>.merged.fastq 
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"
@@ -34,18 +35,25 @@ do_pear() {
     r2f="$(echo $r1f | sed 's/_R1/_R2/')"
     obase="$(repath "$r1f" "$opath" "s|_R1.*||").merged"
     checked $PEAR -f $r1f -r $r2f -o $obase
+    if [[ $? -ne 0 ]]; then
+      logfail pear "$r1f" "$r2f" "$obase"
+    fi
     # output: ${obase}.merged.fastq
   done
 }
 
 # do_trimmomatic <input-path> <output-path>
 do_trimmomatic() {
+  # <f>.merged.*.fastq -> <f>.cleaned.fastq
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"
   for mf in $ipath/*.merged.*; do
     ofile="$(repath "$mf" "$opath" 's|\.merged|.cleaned.fastq|')"
     do_java -jar $TRIMMOMATIC SE -phred33 $mf $ofile SLIDINGWINDOW:4:15 MINLEN:99
+    if [[ $? -ne 0 ]]; then
+      logfail trimmomatic "$mf" "$ofile"
+    fi
   done
 }
 
@@ -65,6 +73,7 @@ do_read_counter() {
 
 # do_sortmerna <input-path> <output-path>
 do_sortmerna() {
+  # <f>.cleaned.fastq -> <f>.ribodepleted.fastq
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"
@@ -86,6 +95,8 @@ do_sortmerna() {
 
 # do_diamond_refseq <input-path> <output-path>
 do_diamond_refseq() {
+  # <f>.ribodepleted.fastq -> <f>.RefSeq_annotated
+  # <f>.ribodepleted.fastq -> daa_binary_files/<f>.RefSeq.daa
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"
@@ -100,6 +111,8 @@ do_diamond_refseq() {
 
 # do_diamond_subsys <input-path> <output-path>
 do_diamond_subsys() {
+  # <f>.ribodepleted.fastq -> <f>subsys_annotated
+  # <f>.ribodepleted.fastq -> daa_binary_files/<f>Subsys.daa
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"

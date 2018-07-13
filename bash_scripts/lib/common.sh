@@ -66,6 +66,18 @@ debug() {
   fi
 }
 
+# logfail <component> <args...>
+logfail() {
+  local comp="$1"
+  local f="$(printf "%s/fail-%s.log" "$SAMSA/logs" "$comp")"
+  if [[ ! -f "$f" ]]; then
+    echo "Items failed to process for component $comp at $(date +%Y%m%d%H%M%S)" > $f
+  fi
+  for i in "${@:1}"; do
+    echo "$i" >> $f
+  done
+}
+
 # checked <cmd...>
 checked() {
   if [[ -n "$DRY_RUN" ]]; then
@@ -76,8 +88,8 @@ checked() {
     log "$@"
     status=$?
     if [[ $status -ne 0 ]]; then
-      echo "'$@' exited with non-zero status $status" >&2
-      exit $status
+      fatal "'$@' exited with non-zero status $status"
+      return $status
     fi
     debug "Finished running $@"
   fi
@@ -130,7 +142,7 @@ if [[ ! -d "$SAMSA/logs" ]]; then
   $MKDIR "$SAMSA/logs"
 fi
 if [[ -z "$LOGFILE" ]]; then
-  LOGFMT="$SAMSA/logs/out-$(date +%Y%m%d%H%m%S)-%d.log"
+  LOGFMT="$SAMSA/logs/out-$(date +%Y%m%d%H%M%S)-%d.log"
   LOGIDX=0
   LOGFILE="$(printf $LOGFMT $LOGIDX)"
   while [[ -f "$LOGFILE" ]]; do
