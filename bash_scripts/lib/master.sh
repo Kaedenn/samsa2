@@ -48,8 +48,8 @@ do_trimmomatic() {
   local ipath="$1"
   local opath="$2"
   do_mkdir "$opath"
-  for mf in $ipath/*.merged.*; do
-    ofile="$(repath "$mf" "$opath" 's|\.merged\.assembled*|.cleaned.fastq|')"
+  for mf in $ipath/*.merged.assembled.*; do
+    ofile="$(repath "$mf" "$opath" 's|\.merged.*|.cleaned.fastq|')"
     do_java -jar $TRIMMOMATIC SE -phred33 $mf $ofile SLIDINGWINDOW:4:15 MINLEN:99
     if [[ $? -ne 0 ]]; then
       logfail trimmomatic "$mf" "$ofile"
