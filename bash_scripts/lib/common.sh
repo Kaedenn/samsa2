@@ -164,7 +164,7 @@ repath() {
   if [[ -n "$re" ]]; then
     fname="$(echo $fname | sed "$re")"
   fi
-  echo $fname
+  echo "$opath/$fname"
 }
 
 # Paths to included components
@@ -175,8 +175,10 @@ R_DIR="$SAMSA/R_scripts"
 # Paths to included utilities
 PEAR_DIR="$PROGRAMS/pear-0.9.10-linux-x86_64"
 PEAR="$PEAR_DIR/bin/pear"
-TRIMMOMATIC_DIR="$PROGRAMS/Trimmomatic-0.36"
-TRIMMOMATIC="$TRIMMOMATIC_DIR/trimmomatic-0.36.jar"
+#TRIMMOMATIC_DIR="$PROGRAMS/Trimmomatic-0.36"
+TRIMMOMATIC_DIR="$PROGRAMS/trimmomatic"
+#TRIMMOMATIC="$TRIMMOMATIC_DIR/trimmomatic-0.36.jar"
+TRIMMOMATIC="$TRIMMOMATIC_DIR/classes/trimmomatic.jar"
 SORTMERNA_DIR="$PROGRAMS/sortmerna-2.1"
 SORTMERNA="$SORTMERNA_DIR/sortmerna"
 DIAMOND_DIR="$PROGRAMS"
