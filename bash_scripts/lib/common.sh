@@ -131,16 +131,15 @@ do_rscript() { checked $RSCRIPT $@; }
 do_tar() { checked $TAR $@; }
 do_gunzip() { checked $GUNZIP $@; }
 do_wget() {
-  checked wget -e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14 $@
+  checked wget -e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14 --progress=bar $@
 }
 
-# download_file <uri> <dir>
+# download_file <uri> <file>
 download_file() {
-  if [[ ! -d "$2" ]]; then
-    do_mkdir "$2"
+  if [[ ! -d "$(dirname "$2")" ]]; then
+    do_mkdir "$(dirname "$2")"
   fi
-  dest_path="$2/$(basename "$1")"
-  do_wget "$1" -O- > "$dest_path"
+  do_wget "$1" -O "$2"
 }
 
 # Path to top-level directory
