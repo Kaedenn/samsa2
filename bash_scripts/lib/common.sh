@@ -175,10 +175,24 @@ R_DIR="$SAMSA/R_scripts"
 # Paths to included utilities
 PEAR_DIR="$PROGRAMS/pear-0.9.10-linux-x86_64"
 PEAR="$PEAR_DIR/bin/pear"
-#TRIMMOMATIC_DIR="$PROGRAMS/Trimmomatic-0.36"
-TRIMMOMATIC_DIR="$PROGRAMS/trimmomatic"
-#TRIMMOMATIC="$TRIMMOMATIC_DIR/trimmomatic-0.36.jar"
-TRIMMOMATIC="$TRIMMOMATIC_DIR/classes/trimmomatic.jar"
+
+# Determine which Trimmomatic we're using
+if [[ -f "$PROGRAMS/Trimmomatic-0.38.1.jar" ]]; then
+  TRIMMOMATIC_DIR="$PROGRAMS"
+  TRIMMOMATIC="$TRIMMOMATIC_DIR/Trimmomatic-0.38.1.jar"
+elif [[ -f "$PROGRAMS/trimmomatic/trimmomatic.jar" ]]; then
+  TRIMMOMATIC_DIR="$PROGRAMS/trimmomatic"
+  TRIMMOMATIC="$TRIMMOMATIC_DIR/trimmomatic.jar"
+elif [[ -f "$PROGRAMS/Trimmomatic-0.36/trimmomatic-0.36.jar" ]]; then
+  warn "Using old version of Trimmomatic"
+  TRIMMOMATIC_DIR="$PROGRAMS/Trimmomatic-0.36"
+  TRIMMOMATIC="$TRIMMOMATIC_DIR/trimmomatic-0.36.jar"
+else
+  warn "Trimmomatic not found in expected places; falling back to default"
+  TRIMMOMATIC_DIR="$PROGRAMS/trimmomatic"
+  TRIMMOMATIC="$TRIMMOMATIC_DIR/classes/trimmomatic.jar"
+fi
+
 SORTMERNA_DIR="$PROGRAMS/sortmerna-2.1"
 SORTMERNA="$SORTMERNA_DIR/sortmerna"
 DIAMOND_DIR="$PROGRAMS"
