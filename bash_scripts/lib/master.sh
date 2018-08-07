@@ -19,6 +19,13 @@ if [[ -z "$SAMSA" ]]; then
 fi
 
 INPUT_DIR="${INPUT_DIR:-$SAMSA/input_files}"
+OUTPUT_DIR=$SAMSA
+
+STEP_1="$OUTPUT_DIR/step_1_output"
+STEP_2="$OUTPUT_DIR/step_2_output"
+STEP_3="$OUTPUT_DIR/step_3_output"
+STEP_4="$OUTPUT_DIR/step_4_output"
+STEP_5="$OUTPUT_DIR/step_5_output"
 
 DIA_REFSEQ="${DIA_REFSEQ:-$SAMSA/full_databases/RefSeq_bac}"
 DIA_SUBSYS="${DIA_SUBSYS:-$SAMSA/full_databases/subsys_db}"

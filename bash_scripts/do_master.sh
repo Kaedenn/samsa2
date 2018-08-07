@@ -3,15 +3,6 @@
 source bash_scripts/lib/common.sh
 source bash_scripts/lib/master.sh
 
-INPUT_DIR=$SAMSA/input_files
-OUTPUT_DIR=$SAMSA
-
-STEP_1="$OUTPUT_DIR/step_1_output"
-STEP_2="$OUTPUT_DIR/step_2_output"
-STEP_3="$OUTPUT_DIR/step_3_output"
-STEP_4="$OUTPUT_DIR/step_4_output"
-STEP_5="$OUTPUT_DIR/step_5_output"
-
 do_step_1() {
     do_pear "$INPUT_DIR" "$STEP_1"
 }

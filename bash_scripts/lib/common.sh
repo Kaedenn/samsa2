@@ -130,6 +130,18 @@ do_r() { checked $R $@; }
 do_rscript() { checked $RSCRIPT $@; }
 do_tar() { checked $TAR $@; }
 do_gunzip() { checked $GUNZIP $@; }
+do_wget() {
+  checked wget -e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14 $@
+}
+
+# download_file <uri> <dir>
+download_file() {
+  if [[ ! -d "$2" ]]; then
+    do_mkdir "$2"
+  fi
+  dest_path="$2/$(basename "$1")"
+  do_wget "$1" -O- > "$dest_path"
+}
 
 # Path to top-level directory
 if [[ -z "$SAMSA" ]]; then
