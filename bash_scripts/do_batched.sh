@@ -38,6 +38,10 @@ while getopts ":hc:f:" arg; do
   esac
 done
 
+if [[ -z "$CONFIG_FILE" ]]; then
+  usage 0
+fi
+
 if [[ ! -f "$CONFIG_FILE" ]]; then
   echo "ERROR: config file $CONFIG_FILE not found" >&2
   exit 1
