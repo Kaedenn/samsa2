@@ -20,16 +20,10 @@ get_config() {
   awk -F= "\$1==\"$2\"{ print \$2 }" "$1"
 }
 
-while getopts ":hc:f:" arg; do
+while getopts ":h" arg; do
   case "$arg" in
     h)
       usage 0
-      ;;
-    c)
-      CONFIG_FILE="${OPTARG}"
-      ;;
-    f)
-      FILELIST_FILE="${OPTARG}"
       ;;
     *)
       echo "invalid argument $arg" >&2
@@ -38,9 +32,12 @@ while getopts ":hc:f:" arg; do
   esac
 done
 
-if [[ -z "$CONFIG_FILE" ]]; then
+if [[ -z "$1" ]] || [[ -z "$2" ]]; then
   usage 0
 fi
+
+CONFIG_FILE="$1"
+FILELIST_FILE="$2"
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
   echo "ERROR: config file $CONFIG_FILE not found" >&2
