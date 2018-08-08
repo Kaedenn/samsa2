@@ -1,0 +1,10 @@
+# Base configuration file for SAMSA2 driver scripts
+# Any options left blank will be deduced at runtime
+#
+# Value expansion after processing:
+#   "false" -> "" (as in VAR=false)
+#   "true" -> "1" (as in VAR=true)
+#   "" -> "undef" (as in VAR=)
+
+# Utility Programs
+WGET_ARGS=-e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14

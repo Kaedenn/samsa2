@@ -16,10 +16,6 @@ usage() {
   fi
 }
 
-get_config() {
-  awk -F= "\$1==\"$2\"{ print \$2 }" "$1"
-}
-
 while getopts ":h" arg; do
   case "$arg" in
     h)
@@ -53,13 +49,24 @@ s_uri="$(get_config "$CONFIG_FILE" "SERVER_URI")"
 num_files="$(wc -l "$FILELIST_FILE" | awk '{ print $1 }')"
 logstr "Downloading $num_files files from $s_uri"
 cat "$FILELIST_FILE" | while read fname; do
-  echo "Downloading $s_uri/$fname to $INPUT_DIR/$fname" >&2
-  download_file "$s_uri/$fname" "$INPUT_DIR/$fname"
-  do_gunzip "$INPUT_DIR/$fname"
+  if [[ -f "$INPUT_DIR/${fname/.gz/}" ]]; then
+    echo "Skipping downloaded file $INPUT_DIR/$fname" >&2
+  else
+    echo "Downloading $s_uri/$fname to $INPUT_DIR/$fname" >&2
+    download_file "$s_uri/$fname" "$INPUT_DIR/$fname"
+    do_gunzip "$INPUT_DIR/$fname"
+  fi
 done
 
 # By request: only run steps 1, 2, and 3
-do_step_1
-do_step_2
-do_step_3
+
+# Step 1: PEAR
+do_pear "$INPUT_DIR"
+
+# Step 2: Trimmomatic (and read counter processing)
+do_trimmomatic "$STEP_1" "$STEP_2"
+do_read_counter "$STEP_2" "$STEP_2/raw_counts.txt"
+
+# Step 3: SortMeRNA
+do_sortmerna "$STEP_2" "$STEP_3"
 

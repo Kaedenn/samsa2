@@ -17,6 +17,46 @@
 #   IGNORE_DEPS   If set, ignore the dependency check for included packages
 #   DRY_RUN       If set, just echo what would be done
 
+# Path to top-level directory
+if [[ -z "$SAMSA" ]]; then
+  SAMSA="$(readlink -f "${BASH_SOURCE%/*}/../..")"
+fi
+echo "Using SAMSA at $SAMSA" >&2
+
+# Logging
+if [[ ! -d "$SAMSA/logs" ]]; then
+  $MKDIR "$SAMSA/logs"
+fi
+if [[ -z "$LOGFILE" ]]; then
+  LOGFMT="$SAMSA/logs/out-$(date +%Y%m%d%H%M%S)-%d.log"
+  LOGIDX=0
+  LOGFILE="$(printf $LOGFMT $LOGIDX)"
+  while [[ -f "$LOGFILE" ]]; do
+    LOGIDX=$(($LOGIDX + 1))
+    LOGFILE="$(printf $LOGFMT $LOGIDX)"
+  done
+fi
+
+export LOGFILE
+
+CONFIG_FILE="${CONFIG_FILE:-conf/config.base}"
+
+get_config() {
+  PROG="bash_scripts/lib/parse_config.awk"
+  VAR_NAME="$1"
+  DEF_VAL="undef"
+  for arg in "$@"; do
+    if [[ "$arg" =~ ^DEF_VAL= ]]; then
+      DEF_VAL="${arg/DEF_VAL=/}"
+    fi
+  done
+  awk -F= \
+    -v V="$VAR_NAME" \
+    -v DEF_VAL="$DEF_VAL" \
+    -f "$PROG" \
+    "$CONFIG_FILE"
+}
+
 # Create variables for commonly-used utilities; allow environment override
 MKDIR=${MKDIR:-'mkdir -p'}
 RMDIR=${RMDIR:-rmdir}
@@ -29,6 +69,13 @@ R=${R:-R}
 RSCRIPT=${RSCRIPT:-Rscript}
 TAR=${TAR:-tar}
 GUNZIP=${GUNZIP:-gunzip}
+WGET=${WGET:-wget}
+
+# Suggested by Oregon State University
+if [[ -z "$WGET_ARGS" ]]; then
+  WGET_ARGS="$(get_config WGET_ARGS \
+    DEF_VAL="-e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14")"
+fi
 
 # warn <msg...>
 warn() {
@@ -119,20 +166,18 @@ chk_dir() {
   fi
 }
 
-do_mkdir() { checked $MKDIR $@; }
-do_rmdir() { checked $RMDIR $@; }
-do_rm() { checked $RM $@; }
-do_mv() { checked $MV $@; }
-do_touch() { checked $TOUCH $@; }
-do_python() { checked $PYTHON $@; }
-do_java() { checked $JAVA $@; }
-do_r() { checked $R $@; }
-do_rscript() { checked $RSCRIPT $@; }
-do_tar() { checked $TAR $@; }
-do_gunzip() { checked $GUNZIP $@; }
-do_wget() {
-  checked wget -e robots=off -A gz,csv,html,txt,php -t 7 -w 5 --waitretry=14 --progress=bar $@
-}
+do_mkdir() { checked $MKDIR "$@"; }
+do_rmdir() { checked $RMDIR "$@"; }
+do_rm() { checked $RM "$@"; }
+do_mv() { checked $MV "$@"; }
+do_touch() { checked $TOUCH "$@"; }
+do_python() { checked $PYTHON "$@"; }
+do_java() { checked $JAVA "$@"; }
+do_r() { checked $R "$@"; }
+do_rscript() { checked $RSCRIPT "$@"; }
+do_tar() { checked $TAR "$@"; }
+do_gunzip() { checked $GUNZIP "$@"; }
+do_wget() { checked wget $WGET_ARGS "$@"; }
 
 # download_file <uri> <file>
 download_file() {
@@ -141,28 +186,6 @@ download_file() {
   fi
   do_wget "$1" -O "$2"
 }
-
-# Path to top-level directory
-if [[ -z "$SAMSA" ]]; then
-  SAMSA="$(readlink -f "${BASH_SOURCE%/*}/../..")"
-fi
-echo "Using SAMSA at $SAMSA" >&2
-
-# Logging
-if [[ ! -d "$SAMSA/logs" ]]; then
-  $MKDIR "$SAMSA/logs"
-fi
-if [[ -z "$LOGFILE" ]]; then
-  LOGFMT="$SAMSA/logs/out-$(date +%Y%m%d%H%M%S)-%d.log"
-  LOGIDX=0
-  LOGFILE="$(printf $LOGFMT $LOGIDX)"
-  while [[ -f "$LOGFILE" ]]; do
-    LOGIDX=$(($LOGIDX + 1))
-    LOGFILE="$(printf $LOGFMT $LOGIDX)"
-  done
-fi
-
-export LOGFILE
 
 # Functions used by various scripts
 
@@ -235,4 +258,9 @@ if [[ -z "$IGNORE_DEPS" ]]; then
     fatal "Diamond not found (did you extract it?) at $DIAMOND"
   fi
 fi
+
+debug "PEAR: $PEAR"
+debug "Trimmomatic: $TRIMMOMATIC"
+debug "SortMeRNA: $SORTMERNA"
+debug "Diamond: $DIAMOND"
 
