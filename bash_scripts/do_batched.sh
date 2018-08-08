@@ -63,7 +63,7 @@ done
 # By request: only run steps 1, 2, and 3
 
 # Step 1: PEAR
-do_pear "$INPUT_DIR"
+do_pear "$INPUT_DIR" "$STEP_1"
 
 # Step 2: Trimmomatic (and read counter processing)
 do_trimmomatic "$STEP_1" "$STEP_2"
