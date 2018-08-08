@@ -2,13 +2,21 @@
 #SBATCH --mem=100000
 #SBATCH --time=7-0:0:0
 
+# NOTE: To specify a download server, place a config file "conf.<label>"
+# in the conf/ directory with at least a SERVER_URI value specified:
+#   SERVER_URI=https://example.com/data/
+# assuming your files are present at
+#   https://example.com/data/sample1-1.fastq.gz
+#   https://example.com/data/sample1.2.fastq.gz
+#   etc
+
 source bash_scripts/lib/common.sh
 source bash_scripts/lib/master.sh
 
 PROGNAME="$0"
 
 usage() {
-  echo "usage: $PROGNAME <config> <file-list>" >&2
+  echo "usage: $PROGNAME <file-list>" >&2
   if [[ -n "$1" ]]; then
     exit $1
   else
@@ -28,24 +36,18 @@ while getopts ":h" arg; do
   esac
 done
 
-if [[ -z "$1" ]] || [[ -z "$2" ]]; then
+if [[ -z "$1" ]]; then
   usage 0
 fi
 
-CONFIG_FILE="$1"
-FILELIST_FILE="$2"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-  echo "ERROR: config file $CONFIG_FILE not found" >&2
-  exit 1
-fi
+FILELIST_FILE="$1"
 
 if [[ ! -f "$FILELIST_FILE" ]]; then
   echo "ERROR: file list $FILELIST_FILE not found" >&2
   exit 1
 fi
 
-s_uri="$(get_config "$CONFIG_FILE" "SERVER_URI")"
+s_uri="$(get_config SERVER_URI)"
 num_files="$(wc -l "$FILELIST_FILE" | awk '{ print $1 }')"
 logstr "Downloading $num_files files from $s_uri"
 cat "$FILELIST_FILE" | while read fname; do

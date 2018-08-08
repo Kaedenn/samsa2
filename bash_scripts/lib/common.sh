@@ -39,8 +39,7 @@ fi
 
 export LOGFILE
 
-CONFIG_FILE="${CONFIG_FILE:-conf/config.base}"
-
+# get_config <varname>
 get_config() {
   PROG="bash_scripts/lib/parse_config.awk"
   VAR_NAME="$1"
@@ -54,7 +53,7 @@ get_config() {
     -v V="$VAR_NAME" \
     -v DEF_VAL="$DEF_VAL" \
     -f "$PROG" \
-    "$CONFIG_FILE"
+    "$SAMSA"/conf/config.*
 }
 
 # Create variables for commonly-used utilities; allow environment override

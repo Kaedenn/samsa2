@@ -1,0 +1,4 @@
+Place configuration files here, of the form "config.<label>".
+
+All files starting with "config." will be loaded. Rename a file to e.g.
+"disabled.<label>" to disable it.
