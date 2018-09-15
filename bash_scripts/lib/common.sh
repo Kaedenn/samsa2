@@ -16,6 +16,7 @@
 #   LOGFILE       Logging file path override
 #   IGNORE_DEPS   If set, ignore the dependency check for included packages
 #   DRY_RUN       If set, just echo what would be done
+#   PREFIX        If set, all programs will be ran as arguments to $PREFIX
 
 # Path to top-level directory
 if [[ -z "$SAMSA" ]]; then
@@ -128,10 +129,10 @@ logfail() {
 checked() {
   if [[ -n "$DRY_RUN" ]]; then
     debug "DRY RUN: $@"
-    logstr "$@"
+    logstr "$PREFIX" "$@"
   else
     debug "Running $@"
-    log "$@"
+    log "$PREFIX" "$@"
     status=$?
     if [[ $status -ne 0 ]]; then
       fatal "'$@' exited with non-zero status $status"

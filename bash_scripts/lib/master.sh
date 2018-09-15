@@ -13,6 +13,9 @@
 #
 #######################################################################
 
+ulimit -l unlimited
+ulimit -s unlimited
+
 if [[ -z "$SAMSA" ]]; then
   echo "WARNING: SAMSA environment not initialized" >&2
   source "${BASH_SOURCE%/*}/../bash_scripts/lib/common.sh"
